@@ -4,10 +4,9 @@ from app.routes.prediction import router
 
 app = FastAPI(title="ML API")
 
-# Enable CORS (important for React)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change later for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -17,4 +16,4 @@ app.include_router(router)
 
 @app.get("/")
 def home():
-    return {"message": "ML API is running"}
+    return {"message": "ML API is running successfully"}
