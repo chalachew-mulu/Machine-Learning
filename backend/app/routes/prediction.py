@@ -1,10 +1,9 @@
 from fastapi import APIRouter
-from app.schemas.prediction_schema import PredictionInput
-from app.model.predict import make_prediction
+from app.schemas.prediction_schema import IrisInput, PredictionResponse
+from app.model.predict import predict_iris
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["Prediction"])
 
-@router.post("/predict")
-def predict(input_data: PredictionInput):
-    result = make_prediction(input_data.data)
-    return {"prediction": result}
+@router.post("/predict", response_model=PredictionResponse)
+def predict(data: IrisInput):
+    return predict_iris(data)

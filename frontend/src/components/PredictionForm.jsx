@@ -1,36 +1,76 @@
 import { useState } from "react";
-import { getPrediction } from "../api/predictionApi";
+import {
+  TextField,
+  Button,
+  Stack,
+  CircularProgress,
+  Grid,
+} from "@mui/material";
+import { predictIris } from "../api/predictionApi";
 import ResultCard from "./ResultCard";
 
-export default function PredictionForm() {
-  const [input, setInput] = useState("");
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+function PredictionForm({ setHistory }) {
+  const [form, setForm] = useState({
+    sepal_length: "",
+    sepal_width: "",
+    petal_length: "",
+    petal_width: "",
+  });
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      const values = input.split(",").map(Number);
-      const response = await getPrediction(values);
-      setResult(response.prediction);
-    } catch (error) {
-      alert("Error occurred");
-    } finally {
-      setLoading(false);
-    }
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const data = await predictIris({
+      ...form,
+      sepal_length: parseFloat(form.sepal_length),
+      sepal_width: parseFloat(form.sepal_width),
+      petal_length: parseFloat(form.petal_length),
+      petal_width: parseFloat(form.petal_width),
+    });
+
+    setResult(data);
+    setHistory((prev) => [...prev, data]);
+    setLoading(false);
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <input
-        placeholder="Example: 5.1,3.5,1.4,0.2"
-        onChange={(e) => setInput(e.target.value)}
-      />
-      <button onClick={handleSubmit}>
-        {loading ? "Predicting..." : "Predict"}
-      </button>
+    <>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={2}>
+          {Object.keys(form).map((key) => (
+            <Grid item xs={12} md={6} key={key}>
+              <TextField
+                fullWidth
+                label={key.replace("_", " ")}
+                name={key}
+                value={form[key]}
+                onChange={handleChange}
+              />
+            </Grid>
+          ))}
+        </Grid>
+
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{ mt: 3 }}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} /> : "Predict"}
+        </Button>
+      </form>
 
       {result && <ResultCard result={result} />}
-    </div>
+    </>
   );
 }
+
+export default PredictionForm;

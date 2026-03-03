@@ -1,17 +1,8 @@
-const BASE_URL = import.meta.env.VITE_API_URL;
+import axios from "axios";
 
-export const getPrediction = async (data) => {
-  const response = await fetch(`${BASE_URL}/predict`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ data }),
-  });
+const API = "http://127.0.0.1:8000/api";
 
-  if (!response.ok) {
-    throw new Error("Prediction failed");
-  }
-
-  return response.json();
+export const predictIris = async (data) => {
+  const response = await axios.post(`${API}/predict`, data);
+  return response.data;
 };
